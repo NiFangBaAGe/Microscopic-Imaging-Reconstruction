@@ -1,5 +1,5 @@
 # Microscopic-Imaging-Reconstruction
-code for "High-Resolution Microscopic Imaging Reconstruction by Deep Learning"
+code for "Correction of Out-of-focus Microscopic Images by Deep Learning"
 
 link for "Unnatural L0 Sparse Representation for Natural Image Deblurring" :
 http://www.cse.cuhk.edu.hk/~leojia/projects/l0deblur/
