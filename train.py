@@ -87,7 +87,10 @@ class GAN(object):
 
         reconstr_lq = self.generator_hq2lq(fake_hq)
         reconstr_hq = self.generator_lq2hq(fake_lq)
-
+        
+        img_lq_id = self.generator_hq2lq(img_lq)
+        img_hq_id = self.generator_lq2hq(img_hq)
+        
         fake_hq_features = self.vgg_hq(fake_hq)
         fake_lq_features = self.vgg_lq(fake_lq)
 
@@ -104,18 +107,17 @@ class GAN(object):
         validity_reconstr_lq = self.discriminator_lq(reconstr_lq)
 
         self.combined_hq = Model([img_lq, img_hq], [validity_hq, validity_reconstr_lq,
-                                                 fake_hq_features, reconstr_lq_features])
+                                                 fake_hq_features, reconstr_lq_features, img_lq_id])
         self.combined_hq_m = multi_gpu_model(self.combined_hq, gpus=4)
-        self.combined_hq_m.compile(loss=['mse', 'mse', 'mse', 'mse'],
-                              loss_weights=[1e-3, 1e-3, 1, 1],
+        self.combined_hq_m.compile(loss=['mse', 'mse', 'mse', 'mse', 'mse'],
+                              loss_weights=[1e-3, 1e-3, 1, 1, 1],
                               optimizer=optimizer)
         self.combined_lq = Model([img_lq, img_hq], [validity_lq, validity_reconstr_hq,
-                                                 fake_lq_features, reconstr_hq_features])
+                                                 fake_lq_features, reconstr_hq_features, img_hq_id])
         self.combined_lq_m = multi_gpu_model(self.combined_lq, gpus=4)
-        self.combined_lq_m.compile(loss=['mse', 'mse', 'mse', 'mse'],
-                              loss_weights=[1e-3, 1e-3, 1, 1],
+        self.combined_lq_m.compile(loss=['mse', 'mse', 'mse', 'mse', 'mse'],
+                              loss_weights=[1e-3, 1e-3, 1, 1, 1],
                               optimizer=optimizer)
-
     def build_vgg_hr(self, name=None):
         vgg = VGG19(include_top=False)
         vgg.outputs = [vgg.layers[9].output]
@@ -248,11 +250,11 @@ class GAN(object):
             g_loss_hq = self.combined_hq_m.train_on_batch([imgs_hrlq_train, imgs_hrhq_train],
                                                   [valid_hr, valid_hr,
                                                    image_features_hq,
-                                                   image_features_lq])
+                                                   image_features_lq, imgs_hrlq_train])
             g_loss_lq = self.combined_lq_m.train_on_batch([imgs_hrlq_train, imgs_hrhq_train],
                                                   [valid_hr, valid_hr,
                                                   image_features_lq,
-                                                  image_features_hq])
+                                                  image_features_hq, imgs_hrhq_train])
 
             elapsed_time = datetime.datetime.now() - start_time
             if (epoch + 1) % 100 == 0:
