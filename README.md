@@ -33,3 +33,4 @@ to train the model.
 Modify test.py, loading your own dataset and trained model, then run
 python test.py
 to evaluate the performance.
+For object detection, you should follow the instruction of Yolov3.
