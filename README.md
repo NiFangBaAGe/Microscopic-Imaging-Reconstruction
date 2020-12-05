@@ -20,7 +20,7 @@ https://data.mendeley.com/drafts/m3jxgb54c9
 # Requirement
 Python 3.6
 Keras 2.2.4
-Tensorflow 1.14。0
+Tensorflow 1.14.0
 
 
 # Train
